@@ -8,7 +8,7 @@ import javax.swing.*;
 
 public class PaintingCanvas extends JPanel {
 
-    private static Dimension drawingAreaSize = new Dimension(550, 550);
+    private static Dimension drawingAreaSize = new Dimension(0, 0);
     private Vector<Layer> canvasLayers = new Vector<>();
     private Layer selectedLayer;
 
