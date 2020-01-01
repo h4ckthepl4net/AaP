@@ -1,69 +1,78 @@
 package com.company.canvas;
 
-import com.company.tools.BaseTool;
-import com.company.utils.State;
+import com.company.utils.ToolUtils;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.*;
 
 public class PaintingCanvas extends JPanel {
 
-    private BaseTool selectedTool;
-    private Vector<State> canvasState = new Vector<>();
+    private static Dimension drawingAreaSize = new Dimension(550, 550);
+    private Vector<Layer> canvasLayers = new Vector<>();
+    private Layer selectedLayer;
 
     public PaintingCanvas() {
-        this.initMouseListener();
+        this.setLayout(null);
         this.setVisible(true);
     }
-    public PaintingCanvas(BaseTool tool) {
+    public PaintingCanvas(String toolName) {
         this();
-        this.setSelectedTool(tool);
+        ToolUtils.setSelectedTool(toolName);
     }
 
-    public void setSelectedTool(BaseTool tool) {
-        this.selectedTool = tool;
+    public static void setDrawingAreaSize(Dimension size) {
+        PaintingCanvas.drawingAreaSize = new Dimension(size);
+    }
+    public static void setDrawingAreaSize(int width, int height) {
+        PaintingCanvas.drawingAreaSize = new Dimension(width, height);
+    }
+    public static Dimension getDrawingAreaSize() {return PaintingCanvas.drawingAreaSize;}
+
+    public int addLayer() {
+        Layer newLayer = new Layer();
+        newLayer.setOpaque(false);
+        newLayer.setSize(PaintingCanvas.drawingAreaSize);
+        this.canvasLayers.add(newLayer);
+        this.setSelectedLayer(newLayer);
+        this.add(newLayer);
+        return this.canvasLayers.size();
     }
 
-    public void initMouseListener() {
-        MouseAdapter mouseListener = new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                canvasState.add(new State(new Point(e.getX(), e.getY())));
-                selectedTool.paint((Graphics2D)getGraphics(), canvasState.lastElement());
-                System.out.println("debug: pressed");
-            }
+    public int removeLayer() {
+        return this.removeLayer(-1);
+    }
+    public int removeLayer(int ind) {
+        if(ind < -1 || ind >= this.canvasLayers.size()) {
+            throw new IllegalArgumentException("Exception in PaintingCanvas@removeLayer(): Layer index out of bounds");
+        }
+        if(ind == -1) {
+            ind = this.canvasLayers.size() - 1;
+        }
+        this.canvasLayers.remove(ind);
+        this.remove(ind);
+        return this.canvasLayers.size();
+    }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                System.out.println("debug: released");
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-                canvasState.lastElement().push(new Point(e.getX(), e.getY()));
-                selectedTool.paint((Graphics2D)getGraphics(), canvasState.lastElement());
-                System.out.println("debug: dragged");
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
-                System.out.println("debug: moved");
-            }
-        };
-        addMouseMotionListener(mouseListener);
-        addMouseListener(mouseListener);
+    public void setSelectedLayer(int ind) {
+        this.setSelectedLayer(this.canvasLayers.get(ind));
+    }
+    public void setSelectedLayer(Layer newLayer) {
+        if(this.selectedLayer != null) {
+            this.removeMouseMotionListener(this.selectedLayer);
+            this.removeMouseListener(this.selectedLayer);
+        }
+        this.addMouseMotionListener(newLayer);
+        this.addMouseListener(newLayer);
+        this.selectedLayer = newLayer;
     }
 
     @Override
-    protected void paintComponent(Graphics g) { //TODO override paint instead of paintComponent
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        this.selectedTool.repaint((Graphics2D)g, this.canvasState);
+        for(Layer layer : this.canvasLayers) {
+            layer.setSize(PaintingCanvas.drawingAreaSize);
+        }
     }
+
 }

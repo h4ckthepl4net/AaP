@@ -1,14 +1,20 @@
 package com.company.utils;
 
+import com.company.tools.BaseTool;
+
 import java.awt.*;
 import java.util.Vector;
 
 public class State {
     public Vector<Point> points = new Vector<>();
+    public BaseTool tool;
 
-    public State() {}
-    public State(Point initialPoint) {
+    public State() {
+        tool = ToolUtils.getSelectedTool();
+    }
+    public State(Point initialPoint, BaseTool tool) {
         this.points.add(initialPoint);
+        this.tool = tool;
     }
 
     public int push(Point point) {

@@ -7,6 +7,10 @@ import com.company.utils.State;
 
 public class PencilTool extends BaseTool {
 
+    public PencilTool() {
+        super("pencil");
+    }
+
     @Override
     public void paint(Graphics2D graphics2D, State stateToDraw) {
         if (stateToDraw.size() > 0) {
@@ -16,13 +20,9 @@ public class PencilTool extends BaseTool {
     }
 
     @Override
-    public void repaint(Graphics2D graphics2D, Vector<State> stateArrayToDraw) {
-        if (stateArrayToDraw.size() > 0) {
-            this.configure(graphics2D);
-            for(int i = 0, length = stateArrayToDraw.size(); i < length; i++) {
-                this.redraw(graphics2D, stateArrayToDraw.elementAt(i));
-            }
-        }
+    public void repaint(Graphics2D graphics2D, State stateToDraw) {
+        this.configure(graphics2D);
+        this.redraw(graphics2D, stateToDraw);
     }
 
     @Override
